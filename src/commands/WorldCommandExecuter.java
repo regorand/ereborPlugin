@@ -153,7 +153,7 @@ public class WorldCommandExecuter implements CommandExecutor {
                         return true;
                     }
                 }else if(args[0].equals("bau")){
-                    List<Block> l = Utilities.getLineBetweenBlocks(b1, b2, 1);
+                    List<Block> l = Utilities.getLineBetweenBlocks_old(b1, b2, 1);
                     Bukkit.broadcastMessage(String.valueOf(l.size()));
                     for(Block b: l){
                         b.setType(Material.GOLD_BLOCK);
