@@ -1,0 +1,21 @@
+name: JavaWorkshop
+version: 1.1
+author: Jan-Luca
+main: main.MyPlugin
+commands:
+  flyingSpeed:
+    description: sets flying Speed  
+  walkingSpeed:
+    description: sets walking speed
+  test:
+    description: test
+  inventory:
+    description: settings for Inventory bar
+  bau:
+    description: fill Bereich
+  calc:
+    description: counts all blocks except airblocks
+  wand:
+    description: build a wall (insert trump joke here)
+    usage: 0 bottom-left. 1 bottom-right. 2 top-right. 3 top-left
+  testLine:
