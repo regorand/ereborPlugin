@@ -4,6 +4,7 @@ package commands;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -84,31 +85,27 @@ public class PlayerCommandExecuter implements CommandExecutor {
                     int blockNr = Integer.valueOf(args[0]);
                     Set<Material> airSet = Utilities.airSet;
                     if(blockNr == 1){
-                        Utilities.setBlock1(player.getTargetBlock(airSet, 200));
-                        Bukkit.broadcastMessage("Block 1 gesetzt");
+                        Utilities.setBlock1(player.getTargetBlock(airSet, 200), player);
+                        player.sendMessage("Block 1 gesetzt");
                     }else if(blockNr == 2){
-                        Utilities.setBlock2(player.getTargetBlock(airSet, 200));
-                        Bukkit.broadcastMessage("Block 2 gesetzt");
+                        Utilities.setBlock2(player.getTargetBlock(airSet, 200), player);
+                        player.sendMessage("Block 1 gesetzt");
                     }
 
 
                 }catch (NumberFormatException e){
-                    String[] actualMessage = {"keine zahl eingegeben", "KEINE ZAHL EINGEGEBEN", "Keine Zahl Eingegeben"};
-                    String[] lelrekt = {":^)", ":v)", "lel", "", "", "", "", "kappa", "baka", "", "", "5/7"};
-                    Random r = new Random();
-                    String s = actualMessage[r.nextInt(actualMessage.length)] + " " +  lelrekt[r.nextInt(lelrekt.length)];
-                    Bukkit.broadcastMessage(s );
+                    Bukkit.broadcastMessage(Utilities.createMessage());
                     Material[] Materials = Material.values();
                     for(int i = 0; i < Materials.length; i++){
                         if(Materials[i].toString().equals(args[0].toUpperCase())){
                             Material fillWith = Material.getMaterial(args[0].toUpperCase());
-                            if(Utilities.canFill()){
-                                Utilities.fillArea(fillWith, world);
-                                Utilities.setBlock1(null);
-                                Utilities.setBlock2(null);
+                            if(Utilities.canFill(player)){
+                                Utilities.fillArea(fillWith, world, player);
+                                Utilities.setBlock1(null, player);
+                                Utilities.setBlock2(null, player);
                                 return true;
                             }
-                            Bukkit.broadcastMessage("Es sind nicht beide Bloecke gesetzt");
+                            player.sendMessage("Es sind nicht beide Bloecke gesetzt");
                             return true;
                         }
 

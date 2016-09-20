@@ -7,16 +7,17 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Utilities {
+
+    public static HashMap<String, Block> bauBlocks = new HashMap<>();
 
     public static Block block1 = null;
     public static Block block2 = null;
@@ -91,31 +92,85 @@ public abstract class Utilities {
         Location l1 = b1.getLocation(),
                 l2 = b2.getLocation();
 
-        int diff_X = Math.abs(l2.getBlockX() - l2.getBlockX()),
-                diff_Y = Math.abs(l1.getBlockY() - l2.getBlockY()),
-                diff_Z = Math.abs(l1.getBlockZ() - l2.getBlockZ());
+
+        double smallX = Math.min(l1.getX(), l2.getX()),
+                largeX = Math.max(l1.getX(), l2.getX()),
+                smallY = Math.min(l1.getY(), l2.getY()),
+                largeY = Math.max(l1.getY(), l2.getY()),
+                smallZ = Math.min(l1.getZ(), l2.getZ()),
+                largeZ = Math.max(l1.getZ(), l2.getZ()),
+                diff_X =  largeX - smallX,
+                diff_Y = largeY - smallY,
+                diff_Z = largeZ - smallZ;
+
+        if(diff_X == 0){
+            int x = l1.getBlockX();
+            if(diff_Z == 0){
+                int z = l1.getBlockZ();
+                for(int y = Math.min(l1.getBlockY(), l2.getBlockY()); y < Math.max(l1.getY(), l2.getY()); y++){
+                    Block block = world.getBlockAt(x, y, z);
+                    if(!returnList.contains(block)){
+                        returnList.add(block);
+                    }
+                }
+            }else{
+                //form f(z) = mz + b = y
+                double m = (l2.getY() - l1.getY()) / (l2.getZ() - l1.getZ()),
+                        b = l1.getY() - (l1.getZ() * m);
+                double stepsize = 1;
+                if(diff_Z > diff_Y){
+                    stepsize = diff_Y / diff_Z;
+                }
+
+                for(double y = smallY; y < largeY; y += stepsize){
+                    Block block = world.getBlockAt(x, (int) y, (int) Math.round(m*y + b));
+                    if(!returnList.contains(block)){
+                        returnList.add(block);
+                    }
+                }
+            }
+
+        }else{
+
+            double m_y = (l2.getY() - l1.getY()) / (l2.getX() - l1.getX()),
+                    m_z = (l2.getZ() - l1.getZ()) / (l2.getX() - l1.getX());
+
+            double b_y = l1.getY() - (l1.getBlockX() * m_y),
+                    b_z = l1.getZ() - (l1.getBlockX() * m_z);
 
 
+            double stepsize = 1;
+            if(diff_Z > diff_X || diff_Y > diff_X){
+                if(diff_Y > diff_Z){
+                    stepsize = diff_X / diff_Y;
+                }else {
+                    stepsize = diff_X / diff_Z;
+                }
+            }
 
-        //get stepsize (greatest diff of all 3 coords)
-        //stepsize is =< 1 -> stepsize = 1 wenn x groeßte stepsize
-        //ausnahme fall wenn diff_X == 0
+            for(double x = smallX; x < largeX; x += stepsize){
+                Block block = world.getBlockAt((int) x,
+                        (int) Math.round(m_y * x + b_y),
+                        (int) Math.round(m_z * x + b_z));
+                if(!returnList.contains(block)){
+                    returnList.add(block);
+                }
+            }
+            //get stepsize (greatest diff of all 3 coords)
+            //stepsize is =< 1 -> stepsize = 1 wenn x groeï¿½te stepsize
+            //ausnahme fall wenn diff_X == 0
 
+            //create mx+b params for both y and z
 
+            //might change from here
 
+            //special case if x diff is zero
 
+            //calculate blocks
 
-        //create mx+b params for both y and z
+        }
 
-
-        //might change from here
-
-        //special case if x diff is zero
-
-
-        //calculate blocks
-
-        return null;
+        return returnList;
     }
 
 
@@ -226,24 +281,47 @@ public abstract class Utilities {
     }
 
 
-    public static boolean canFill() {
-        return block1 != null && block2 != null;
+    public static boolean canFill(Player player) {
+        return bauBlocks.get(player.getDisplayName() + "_1") != null &&
+                bauBlocks.get(player.getDisplayName() + "_2") != null;
     }
 
-    public static Block getBlock1() {
-        return block1;
+    public static Block getBlock1(Player player) {
+        return bauBlocks.get(player.getDisplayName() + "_1");
     }
 
-    public static Block getBlock2() {
-        return block2;
+    public static Block getBlock2(Player player) {
+        return bauBlocks.get(player.getDisplayName() + "_2");
     }
 
-    public static void setBlock1(Block block) {
-        block1 = block;
+    public static void setBlock1(Block block, Player player) {
+        String key = player.getDisplayName() + "_1";
+        bauBlocks.put(key, block);
     }
 
-    public static void setBlock2(Block block) {
-        block2 = block;
+    public static void setBlock2(Block block, Player player) {
+        String key = player.getDisplayName() + "_2";
+        bauBlocks.put(key, block);
+    }
+
+    public static void fillArea(Material material, World world, Player player) {
+        Location loc1 = bauBlocks.get(player.getDisplayName() + "_1").getLocation();
+        Location loc2 = bauBlocks.get(player.getDisplayName() + "_2").getLocation();;
+
+        double smallerX = Math.min(loc1.getX(), loc2.getX());
+        double smallerY = Math.min(loc1.getY(), loc2.getY());
+        double smallerZ = Math.min(loc1.getZ(), loc2.getZ());
+        double biggerX = Math.max(loc1.getX(), loc2.getX());
+        double biggerY = Math.max(loc1.getY(), loc2.getY());
+        double biggerZ = Math.max(loc1.getZ(), loc2.getZ());
+
+        for (int x = (int) smallerX; x <= biggerX; x++) {
+            for (int y = (int) smallerY; y <= biggerY; y++) {
+                for (int z = (int) smallerZ; z <= biggerZ; z++) {
+                    world.getBlockAt(x, y, z).setType(material);
+                }
+            }
+        }
     }
 
     public static ItemStack[] getInvBySaveName(String name) {
@@ -253,6 +331,13 @@ public abstract class Utilities {
             }
         }
         return null;
+    }
+
+    public static String createMessage(){
+        String[] actualMessage = {"keine zahl eingegeben", "KEINE ZAHL EINGEGEBEN", "Keine Zahl Eingegeben"};
+        String[] lelrekt = {":^)", ":v)", "lel", ":3", "", "", "", "kappa", "baka", "", "", "5/7"};
+        Random r = new Random();
+        return actualMessage[r.nextInt(actualMessage.length)] + " " +  lelrekt[r.nextInt(lelrekt.length)];
     }
 
     public static int countBlocks(World world) throws RuntimeException {
@@ -283,28 +368,6 @@ public abstract class Utilities {
             }
         }
         return blocks;
-    }
-
-    public static void fillArea(Material material, World world) {
-        Location loc1 = block1.getLocation();
-        Location loc2 = block2.getLocation();
-
-        double smallerX = Math.min(loc1.getX(), loc2.getX());
-        double smallerY = Math.min(loc1.getY(), loc2.getY());
-        double smallerZ = Math.min(loc1.getZ(), loc2.getZ());
-        double biggerX = Math.max(loc1.getX(), loc2.getX());
-        double biggerY = Math.max(loc1.getY(), loc2.getY());
-        double biggerZ = Math.max(loc1.getZ(), loc2.getZ());
-
-        Block block;
-
-        for (int x = (int) smallerX; x <= biggerX; x++) {
-            for (int y = (int) smallerY; y <= biggerY; y++) {
-                for (int z = (int) smallerZ; z <= biggerZ; z++) {
-                    world.getBlockAt(x, y, z).setType(material);
-                }
-            }
-        }
     }
 
 

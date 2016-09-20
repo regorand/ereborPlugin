@@ -65,11 +65,7 @@ public class WorldCommandExecuter implements CommandExecutor {
                         Bukkit.broadcastMessage("bitte eine Zahl eingeben");
                     }
                 }else {
-                    String[] actualMessage = {"keine zahl eingegeben", "KEINE ZAHL EINGEGEBEN", "Keine Zahl Eingegeben"};
-                    String[] lelrekt = {":^)", ":v)", "lel", "", "", "", "", "kappa", "baka", "", "", "5/7"};
-                    Random r = new Random();
-                    String s = actualMessage[r.nextInt(actualMessage.length)] + " " + lelrekt[r.nextInt(lelrekt.length)];
-                    Bukkit.broadcastMessage(s);
+                    Bukkit.broadcastMessage(Utilities.createMessage());
                     try {
                         Bukkit.broadcastMessage("Blöcke im bereich: " + Utilities.countBlocks(world));
                     } catch (RuntimeException e2) {
