@@ -3,6 +3,7 @@ package commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -33,6 +34,27 @@ public class PlayerCommandExecuter implements CommandExecutor {
         World world = player.getWorld();
 
         switch (label.toLowerCase()) {
+            case "wtf":
+                String name = "";
+                if(args.length == 0){
+                    name = "Thomas";
+                }else {
+                    name = args[0];
+                }
+                Random r = new Random();
+                int ra = r.nextInt();
+                if(ra % 10 == 0){
+                    if(ra % 20 == 0){
+                        Bukkit.broadcastMessage(name + ", don't get Bushy");
+                    }else{
+                        Bukkit.broadcastMessage(name + ", don't get pushy");
+
+                    }
+                    return true;
+                }
+                Bukkit.broadcastMessage("wtf " + name);
+                return true;
+
             case "flyingspeed":
 
                 if (args.length > 0) {

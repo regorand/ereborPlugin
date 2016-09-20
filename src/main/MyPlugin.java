@@ -25,6 +25,7 @@ public class MyPlugin extends JavaPlugin {
         WorldCommandExecuter worldCommandExecuter = new WorldCommandExecuter();
         PlayerCommandExecuter playerCommandExecuter = new PlayerCommandExecuter();
 
+        getCommand("wtf").setExecutor(playerCommandExecuter);
         getCommand("flyingspeed").setExecutor(playerCommandExecuter);
         getCommand("walkingspeed").setExecutor(playerCommandExecuter);
         getCommand("inventory").setExecutor(playerCommandExecuter);

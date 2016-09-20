@@ -150,6 +150,7 @@ public class WorldCommandExecuter implements CommandExecutor {
                     }
                 }else if(args[0].equals("bau")){
                     List<Block> l = Utilities.getLineBetweenBlocks(b1, b2);
+
                     Bukkit.broadcastMessage(String.valueOf(l.size()));
                     for(Block b: l){
                         b.setType(Material.GOLD_BLOCK);

@@ -75,32 +75,44 @@ public abstract class Utilities {
 
     public static void bauWall(Material material) {
         ArrayList<Block> leftColumn = getLineBetweenBlocks(wallPoints[0], wallPoints[3]),
+                topColumn = getLineBetweenBlocks(wallPoints[3], wallPoints[2]),
                 rightColumn = getLineBetweenBlocks(wallPoints[1], wallPoints[2]);
 
-        int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
-                leftIndex, rightIndex;
-        Bukkit.broadcastMessage("" + largerSize);
 
-        for(int i = 0; i < largerSize; i++){
+/*
+        for(Block iteBlock: leftColumn){
+            for(Block wallBlock: getLineBetweenBlocks(wallPoints[1], iteBlock)){
+                wallBlock.setType(Material.DIAMOND_BLOCK);
+            }
+        }
+        for(Block iteBlock: topColumn){
+            for(Block wallBlock: getLineBetweenBlocks(wallPoints[1], iteBlock)){
+                wallBlock.setType(Material.DIAMOND_BLOCK);
+            }
+        }
+*/
+        boolean leftIsSmaller = leftColumn.size() < rightColumn.size();
+        int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
+            smallerSize = Math.min(leftColumn.size(), rightColumn.size()) - 1,
+                leftIndex, rightIndex;
+
+        for(int i = 0; i < smallerSize; i++){
             leftIndex = i >= leftColumn.size() ? leftColumn.size() - 1 : i;
             rightIndex = i >= rightColumn.size() ? rightColumn.size() - 1 : i;
-            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIndex), rightColumn.get(rightIndex))){
-                b.setType(Material.GOLD_BLOCK);
+
+            for(Block b: getLineBetweenBlocks(leftColumn.get(i), rightColumn.get(i))){
+                b.setType(Material.DIAMOND_BLOCK);
+            }
+
+
+        }
+
+        for(int i = smallerSize; i < largerSize; i++){
+            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIsSmaller ? smallerSize : i), rightColumn.get(leftIsSmaller ?  i : smallerSize))){
+                b.setType(Material.DIAMOND_BLOCK);
             }
         }
 
-        /*
-
-        int largerIte = Math.max(leftColumn.size(), rightColumn.size());
-        int leftIndex, rightIndex;
-        for(int i = 0; i < largerIte; i++){
-            leftIndex = largerIte >= leftColumn.size() ? leftColumn.size()-1 : largerIte;
-            rightIndex = largerIte >= rightColumn.size() ? rightColumn.size()-1 : largerIte;
-            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIndex), rightColumn.get(rightIndex))){
-                b.setType(Material.GOLD_BLOCK);
-            }
-        }
-        */
 
     }
 
