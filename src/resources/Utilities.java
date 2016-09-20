@@ -74,11 +74,37 @@ public abstract class Utilities {
     }
 
     public static void bauWall(Material material) {
+        ArrayList<Block> leftColumn = getLineBetweenBlocks(wallPoints[0], wallPoints[3]),
+                rightColumn = getLineBetweenBlocks(wallPoints[1], wallPoints[2]);
 
+        int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
+                leftIndex, rightIndex;
+        Bukkit.broadcastMessage("" + largerSize);
+
+        for(int i = 0; i < largerSize; i++){
+            leftIndex = i >= leftColumn.size() ? leftColumn.size() - 1 : i;
+            rightIndex = i >= rightColumn.size() ? rightColumn.size() - 1 : i;
+            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIndex), rightColumn.get(rightIndex))){
+                b.setType(Material.GOLD_BLOCK);
+            }
+        }
+
+        /*
+
+        int largerIte = Math.max(leftColumn.size(), rightColumn.size());
+        int leftIndex, rightIndex;
+        for(int i = 0; i < largerIte; i++){
+            leftIndex = largerIte >= leftColumn.size() ? leftColumn.size()-1 : largerIte;
+            rightIndex = largerIte >= rightColumn.size() ? rightColumn.size()-1 : largerIte;
+            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIndex), rightColumn.get(rightIndex))){
+                b.setType(Material.GOLD_BLOCK);
+            }
+        }
+        */
 
     }
 
-    public static List<Block> getLineBetweenBlocks(Block b1, Block b2) {
+    public static ArrayList<Block> getLineBetweenBlocks(Block b1, Block b2) {
         World world = b1.getWorld();
 
         ArrayList<Block> returnList = new ArrayList<>();
@@ -118,12 +144,12 @@ public abstract class Utilities {
                 double m = (l2.getY() - l1.getY()) / (l2.getZ() - l1.getZ()),
                         b = l1.getY() - (l1.getZ() * m);
                 double stepsize = 1;
-                if(diff_Z > diff_Y){
-                    stepsize = diff_Y / diff_Z;
+                if(diff_Y > diff_Z){
+                    stepsize = diff_Z / diff_Y;
                 }
 
-                for(double y = smallY; y < largeY; y += stepsize){
-                    Block block = world.getBlockAt(x, (int) y, (int) Math.round(m*y + b));
+                for(double z = smallZ; z < largeZ; z += stepsize){
+                    Block block = world.getBlockAt(x, (int) Math.round(m*z + b), (int) Math.round(z));
                     if(!returnList.contains(block)){
                         returnList.add(block);
                     }
@@ -149,7 +175,7 @@ public abstract class Utilities {
             }
 
             for(double x = smallX; x < largeX; x += stepsize){
-                Block block = world.getBlockAt((int) x,
+                Block block = world.getBlockAt((int) Math.round(x),
                         (int) Math.round(m_y * x + b_y),
                         (int) Math.round(m_z * x + b_z));
                 if(!returnList.contains(block)){
@@ -169,6 +195,7 @@ public abstract class Utilities {
             //calculate blocks
 
         }
+
 
         return returnList;
     }
