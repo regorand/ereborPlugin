@@ -5,6 +5,7 @@ import Listener.PlayerListener;
 import Listener.PlayerServerEvent;
 import Listener.WorldListener;
 import commands.PlayerCommandExecuter;
+import commands.ReactionCommandExecuter;
 import commands.WorldCommandExecuter;
 import org.bukkit.plugin.java.JavaPlugin;
 import resources.Utilities;
@@ -24,8 +25,13 @@ public class MyPlugin extends JavaPlugin {
 
         WorldCommandExecuter worldCommandExecuter = new WorldCommandExecuter();
         PlayerCommandExecuter playerCommandExecuter = new PlayerCommandExecuter();
+        ReactionCommandExecuter reactionCommandExecuter = new ReactionCommandExecuter(this);
 
-        getCommand("wtf").setExecutor(playerCommandExecuter);
+        getCommand("wtf").setExecutor(reactionCommandExecuter);
+        getCommand("nice").setExecutor(reactionCommandExecuter);
+
+        getCommand("?").setExecutor(reactionCommandExecuter);
+
         getCommand("flyingspeed").setExecutor(playerCommandExecuter);
         getCommand("walkingspeed").setExecutor(playerCommandExecuter);
         getCommand("inventory").setExecutor(playerCommandExecuter);

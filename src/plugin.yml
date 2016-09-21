@@ -5,6 +5,8 @@ main: main.MyPlugin
 commands:
   wtf:
     description: wtf
+  nice:
+  ?:
   flyingSpeed:
     description: sets flying Speed
   walkingSpeed:

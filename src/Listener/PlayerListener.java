@@ -17,6 +17,7 @@ import java.util.*;
 
 public class PlayerListener implements Listener {
 
+    private int teleDelay = 100;
     private long lastTeleport = System.currentTimeMillis();
     private Player lastPlayerToTeleport;
 
@@ -30,7 +31,7 @@ public class PlayerListener implements Listener {
                 Set<Material> airSet = Utilities.airSet;
                 List<Block> blocksInSight = player.getLineOfSight(airSet, 255);
 
-                if(System.currentTimeMillis() - lastTeleport > 1000 || !lastPlayerToTeleport.equals(player)){
+                if(System.currentTimeMillis() - lastTeleport > teleDelay || !lastPlayerToTeleport.equals(player)){
                     Location newLoc = blocksInSight.get(blocksInSight.size() - 2).getLocation().add(0.5, -1, 0.5);
                     newLoc.setYaw(player.getLocation().getYaw());
                     newLoc.setPitch(player.getLocation().getPitch());

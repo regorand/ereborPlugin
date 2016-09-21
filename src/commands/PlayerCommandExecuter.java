@@ -111,7 +111,7 @@ public class PlayerCommandExecuter implements CommandExecutor {
                         player.sendMessage("Block 1 gesetzt");
                     }else if(blockNr == 2){
                         Utilities.setBlock2(player.getTargetBlock(airSet, 200), player);
-                        player.sendMessage("Block 1 gesetzt");
+                        player.sendMessage("Block 2 gesetzt");
                     }
 
 
