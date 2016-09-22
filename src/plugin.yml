@@ -11,15 +11,14 @@ commands:
     description: sets flying Speed
   walkingSpeed:
     description: sets walking speed
-  test:
-    description: test
+  killAll:
+    description: kills all Entities except a few non-living ones and players
   inventory:
     description: settings for Inventory bar
   bau:
     description: fill Bereich
   calc:
-    description: counts all blocks except airblocks
+    description: counts all blocks. use true as first parameter if you want to count air blocks
   wand:
     description: build a wall (insert trump joke here)
     usage: 0 bottom-left. 1 bottom-right. 2 top-right. 3 top-left
-  testLine:

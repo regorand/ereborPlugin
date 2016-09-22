@@ -19,9 +19,6 @@ public abstract class Utilities {
 
     public static HashMap<String, Block> bauBlocks = new HashMap<>();
 
-    public static Block block1 = null;
-    public static Block block2 = null;
-
     public static void setCalcBlock1(Block calcBlock1) {
         Utilities.calcBlock1 = calcBlock1;
     }
@@ -75,36 +72,17 @@ public abstract class Utilities {
 
     public static void bauWall(Material material) {
         ArrayList<Block> leftColumn = getLineBetweenBlocks(wallPoints[0], wallPoints[3]),
-                topColumn = getLineBetweenBlocks(wallPoints[3], wallPoints[2]),
                 rightColumn = getLineBetweenBlocks(wallPoints[1], wallPoints[2]);
 
-
-/*
-        for(Block iteBlock: leftColumn){
-            for(Block wallBlock: getLineBetweenBlocks(wallPoints[1], iteBlock)){
-                wallBlock.setType(Material.DIAMOND_BLOCK);
-            }
-        }
-        for(Block iteBlock: topColumn){
-            for(Block wallBlock: getLineBetweenBlocks(wallPoints[1], iteBlock)){
-                wallBlock.setType(Material.DIAMOND_BLOCK);
-            }
-        }
-*/
         boolean leftIsSmaller = leftColumn.size() < rightColumn.size();
         int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
             smallerSize = Math.min(leftColumn.size(), rightColumn.size()) - 1,
                 leftIndex, rightIndex;
 
         for(int i = 0; i < smallerSize; i++){
-            leftIndex = i >= leftColumn.size() ? leftColumn.size() - 1 : i;
-            rightIndex = i >= rightColumn.size() ? rightColumn.size() - 1 : i;
-
             for(Block b: getLineBetweenBlocks(leftColumn.get(i), rightColumn.get(i))){
                 b.setType(Material.DIAMOND_BLOCK);
             }
-
-
         }
 
         for(int i = smallerSize; i < largerSize; i++){
@@ -112,8 +90,6 @@ public abstract class Utilities {
                 b.setType(Material.DIAMOND_BLOCK);
             }
         }
-
-
     }
 
     public static ArrayList<Block> getLineBetweenBlocks(Block b1, Block b2) {
@@ -126,10 +102,8 @@ public abstract class Utilities {
         }
         returnList.add(b2);
 
-
         Location l1 = b1.getLocation(),
                 l2 = b2.getLocation();
-
 
         double smallX = Math.min(l1.getX(), l2.getX()),
                 largeX = Math.max(l1.getX(), l2.getX()),
@@ -152,7 +126,6 @@ public abstract class Utilities {
                     }
                 }
             }else{
-                //form f(z) = mz + b = y
                 double m = (l2.getY() - l1.getY()) / (l2.getZ() - l1.getZ()),
                         b = l1.getY() - (l1.getZ() * m);
                 double stepsize = 1;
@@ -167,15 +140,12 @@ public abstract class Utilities {
                     }
                 }
             }
-
         }else{
-
             double m_y = (l2.getY() - l1.getY()) / (l2.getX() - l1.getX()),
                     m_z = (l2.getZ() - l1.getZ()) / (l2.getX() - l1.getX());
 
             double b_y = l1.getY() - (l1.getBlockX() * m_y),
                     b_z = l1.getZ() - (l1.getBlockX() * m_z);
-
 
             double stepsize = 1;
             if(diff_Z > diff_X || diff_Y > diff_X){
@@ -260,7 +230,7 @@ public abstract class Utilities {
         return actualMessage[r.nextInt(actualMessage.length)] + " " +  lelrekt[r.nextInt(lelrekt.length)];
     }
 
-    public static int countBlocks(World world) throws RuntimeException {
+    public static int countBlocks(World world, boolean countAir) throws RuntimeException {
         if (calcBlock1 == null || calcBlock2 == null) {
             throw new RuntimeException();
         }
@@ -281,7 +251,7 @@ public abstract class Utilities {
         for (int x = (int) smallerX; x <= biggerX; x++) {
             for (int y = (int) smallerY; y <= biggerY; y++) {
                 for (int z = (int) smallerZ; z <= biggerZ; z++) {
-                    if (!world.getBlockAt(x, y, z).getType().equals(Material.AIR)) {
+                    if (countAir || !world.getBlockAt(x, y, z).getType().equals(Material.AIR)) {
                         blocks++;
                     }
                 }

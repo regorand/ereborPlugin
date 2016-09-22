@@ -1,165 +1,191 @@
 package commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import resources.Utilities;
 
-import java.util.List;
-import java.util.Random;
+import java.util.HashMap;
 import java.util.Set;
 
-/**
- * Created by jan-luca on 25.11.15.
- */
 public class WorldCommandExecuter implements CommandExecutor {
 
-    public Block b1 = null;
-    public Block b2 = null;
+    HashMap<String, CommandExecution> COMMANDS = new HashMap<>();
+
+
+    public WorldCommandExecuter(JavaPlugin plugin){
+        loadCommands();
+        for(String key: COMMANDS.keySet()){
+            plugin.getCommand(key).setExecutor(this);
+        }
+
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(!isPlayer(sender)){
+            sender.sendMessage("nur als Spieler anwendbar");
+            return true;
+        }
 
+        if(COMMANDS.containsKey(label)){
+            COMMANDS.get(label).execute(sender, label, args);
+        }
+        return false;
+    }
 
-        Player player = (Player) sender;
-        World world = player.getWorld();
+    private void loadCommands(){
 
-        switch (label) {
-            case "test":
-                int counter = 0;
-                for(Entity e: world.getEntities()){
+        COMMANDS.put("killall", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                killall(((Player) sender).getWorld());
+            }
+        });
 
-                    if(!Utilities.notRemovable.contains(e.getType())){
-                        counter++;
-                        EntityType eType = e.getType();
-                        Bukkit.broadcastMessage("rekt get " + eType.toString());
-                        e.remove();
-                    }
-
+        COMMANDS.put("calc", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                if (args.length == 0) {
+                    return;
                 }
+                Player player = (Player) sender;
+                World world = player.getWorld();
+                try {
+                    int blockNr = Integer.valueOf(args[0]);
 
-                Bukkit.broadcastMessage(counter + " Scrubs got rekt");
-                Bukkit.broadcastMessage("lel");
-                return true;
-            case "calc":
-                if(args.length != 0) {
+                    if (blockNr == 1) {
+                        Utilities.setCalcBlock1(player.getTargetBlock(Utilities.airSet, 200));
+                        player.sendMessage("Block 1 gesetzt");
+                    } else if (blockNr == 2) {
+                        Utilities.setCalcBlock2(player.getTargetBlock(Utilities.airSet, 200));
+                        player.sendMessage("Block 2 gesetzt");
+                    }
+                } catch (NumberFormatException e) {
+                    boolean countAir = args[0].equals("true");
+                    calculateBlocks(world, countAir);
+                }
+            }
+        });
 
+        COMMANDS.put("wand", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                if (args.length == 0) {
+                    return;
+                }
+                Player player = (Player) sender;
+                if (args[0].equals("set")) {
                     try {
-                        int blockNr = Integer.valueOf(args[0]);
-
-                        Set<Material> airSet = Utilities.airSet;
-                        if (blockNr == 1) {
-                            Utilities.setCalcBlock1(player.getTargetBlock(airSet, 200));
-                            Bukkit.broadcastMessage("Block 1 gesetzt");
-                        } else if (blockNr == 2) {
-                            Utilities.setCalcBlock2(player.getTargetBlock(airSet, 200));
-                            Bukkit.broadcastMessage("Block 2 gesetzt");
-                        }
-                    } catch (NumberFormatException e) {
-                        Bukkit.broadcastMessage("bitte eine Zahl eingeben");
-                    }
-                }else {
-                    Bukkit.broadcastMessage(Utilities.createMessage());
-                    try {
-                        Bukkit.broadcastMessage("Blöcke im bereich: " + Utilities.countBlocks(world));
-                    } catch (RuntimeException e2) {
-                        Bukkit.broadcastMessage("error mate, mach beide blöcke undso diesdas");
-                    }
-
-                    Utilities.setCalcBlock1(null);
-                    Utilities.setCalcBlock2(null);
-                    return true;
-                }
-
-            case "wand":
-
-                if(args.length == 0){
-                    return true;
-                }
-
-                if(args[0].equals("set")){
-                    try{
                         int index = Integer.valueOf(args[1]);
-                        if(index < 0 || index > 3){
-                            Bukkit.broadcastMessage("bitte eine Zahl zwischen 0 und 3");
-                            return true;
+                        if (index < 0 || index > 3) {
+                            player.sendMessage("bitte eine Zahl zwischen 0 und 3");
+                            return;
                         }
-                        Set<Material> airSet = Utilities.airSet;
-                        Utilities.setWallBlock(player.getTargetBlock(airSet, 200), index);
+                        Utilities.setWallBlock(player.getTargetBlock(Utilities.airSet, 200), index);
 
-                    }catch (NumberFormatException e){
-                        Bukkit.broadcastMessage("bitte eine Zahl als zweites argument bei set eingeben");
-                        return true;
+                    } catch (NumberFormatException e) {
+                        player.sendMessage("bitte eine Zahl als zweites argument bei set eingeben");
+                        return;
                     }
-                }else if(args[0].equals("bau")){
-                    Material material = null;
+                } else if (args[0].equals("bau")) {
+                    String arg = args.length > 1 ? args[1] : "";
+                    buildWall(arg);
+                }
+            }
+        });
 
-                    Bukkit.broadcastMessage("finds material");
-                    if(args.length > 1){
-                        Material[] materials = Material.values();
-                        for(Material m: materials){
-                            if(m.toString().equals(args[1].toUpperCase())){
-                                material = m;
-                                break;
+        COMMANDS.put("bau", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                if(args.length == 0){
+                    return ;
+                }
+                Player player = (Player) sender;
+                try{
+                    int blockNr = Integer.valueOf(args[0]);
+                    if(blockNr == 1){
+                        Utilities.setBlock1(player.getTargetBlock(Utilities.airSet, 200), player);
+                        player.sendMessage("Block 1 gesetzt");
+                    }else if(blockNr == 2){
+                        Utilities.setBlock2(player.getTargetBlock(Utilities.airSet, 200), player);
+                        player.sendMessage("Block 2 gesetzt");
+                    }
+
+
+                }catch (NumberFormatException e){
+                    Bukkit.broadcastMessage(Utilities.createMessage());
+                    Material[] Materials = Material.values();
+                    for(int i = 0; i < Materials.length; i++){
+                        if(Materials[i].toString().equals(args[0].toUpperCase())){
+                            Material fillWith = Material.getMaterial(args[0].toUpperCase());
+                            if(Utilities.canFill(player)){
+                                Utilities.fillArea(fillWith, player.getWorld(), player);
+                                Utilities.setBlock1(null, player);
+                                Utilities.setBlock2(null, player);
+                                return ;
                             }
+                            player.sendMessage("Es sind nicht beide Bloecke gesetzt");
                         }
-                    }
-                    if(material == null){
-                        material = Material.STONE;
+
                     }
 
-                    Bukkit.broadcastMessage("found material");
+                }
+            }
+        });
+    }
 
-                    Utilities.bauWall(material);
+    private boolean isPlayer(CommandSender sender){
+        return sender instanceof Player;
+    }
+
+    private void killall(World world){
+        int counter = 0;
+        for(Entity e: world.getEntities()){
+
+            if(!Utilities.notRemovable.contains(e.getType())){
+                counter++;
+                EntityType eType = e.getType();
+                Bukkit.broadcastMessage("rekt get " + eType.toString());
+                e.remove();
             }
 
-                return true;
-
-
-
-            case "testline":
-                if(args.length == 0){
-                    return true;
-                }
-
-                if(args[0].equals("set")){
-                    try{
-                        int index = Integer.valueOf(args[1]);
-                        if(index < 1 || index > 2){
-                            Bukkit.broadcastMessage("bitte eine Zahl zwischen 1 und 2");
-                            return true;
-                        }
-                        Set<Material> airSet = Utilities.airSet;
-                        if(index == 1){
-                            b1 = player.getTargetBlock(airSet, 200);
-                            Bukkit.broadcastMessage("set Block 1");
-                        }else if(index == 2){
-                            b2 = player.getTargetBlock(airSet, 200);
-                            Bukkit.broadcastMessage("set Block 2");
-                        }
-
-                    }catch (NumberFormatException e){
-                        Bukkit.broadcastMessage("bitte eine Zahl als zweites argument bei set eingeben");
-                        return true;
-                    }
-                }else if(args[0].equals("bau")){
-                    List<Block> l = Utilities.getLineBetweenBlocks(b1, b2);
-
-                    Bukkit.broadcastMessage(String.valueOf(l.size()));
-                    for(Block b: l){
-                        b.setType(Material.GOLD_BLOCK);
-                    }
-                }
-
-
-            default:
-                return false;
         }
+
+        Bukkit.broadcastMessage(counter + " Scrubs got rekt");
+        Bukkit.broadcastMessage("lel");
+    }
+
+
+
+    private void calculateBlocks(World world, boolean countAir){
+            Bukkit.broadcastMessage(Utilities.createMessage());
+            try {
+                Bukkit.broadcastMessage("Blöcke im bereich: " + Utilities.countBlocks(world, countAir));
+            } catch (RuntimeException e2) {
+                Bukkit.broadcastMessage("error mate, mach beide blöcke undso diesdas");
+            }
+            Utilities.setCalcBlock1(null);
+            Utilities.setCalcBlock2(null);
+    }
+
+    private void buildWall (String arg){
+        Material material = Material.STONE;
+
+        for(Material m: Material.values()){
+            if(m.toString().equals(arg.toUpperCase())){
+                material = m;
+                Utilities.bauWall(material);
+                return;
+            }
+        }
+        Utilities.bauWall(material);
     }
 }

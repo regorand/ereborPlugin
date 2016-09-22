@@ -26,6 +26,8 @@ public class ReactionCommandExecuter implements CommandExecutor{
         if(!(commandSender instanceof Player)){
             return true;
         }
+
+
         Player player = (Player) commandSender;
 
         switch (label.toLowerCase()){

@@ -19,9 +19,6 @@ import resources.Utilities;
 import java.util.Random;
 import java.util.Set;
 
-/**
- * Created by jan-luca on 25.11.15.
- */
 public class PlayerCommandExecuter implements CommandExecutor {
     @SuppressWarnings("deprecation")
     @Override
@@ -34,26 +31,6 @@ public class PlayerCommandExecuter implements CommandExecutor {
         World world = player.getWorld();
 
         switch (label.toLowerCase()) {
-            case "wtf":
-                String name = "";
-                if(args.length == 0){
-                    name = "Thomas";
-                }else {
-                    name = args[0];
-                }
-                Random r = new Random();
-                int ra = r.nextInt();
-                if(ra % 10 == 0){
-                    if(ra % 20 == 0){
-                        Bukkit.broadcastMessage(name + ", don't get Bushy");
-                    }else{
-                        Bukkit.broadcastMessage(name + ", don't get pushy");
-
-                    }
-                    return true;
-                }
-                Bukkit.broadcastMessage("wtf " + name);
-                return true;
 
             case "flyingspeed":
 
@@ -98,43 +75,6 @@ public class PlayerCommandExecuter implements CommandExecutor {
                 }
                 Bukkit.broadcastMessage("save or load as first Parameter <mode>");
                 return true;
-
-            case "bau":{
-                if(args.length == 0){
-                    return true;
-                }
-                try{
-                    int blockNr = Integer.valueOf(args[0]);
-                    Set<Material> airSet = Utilities.airSet;
-                    if(blockNr == 1){
-                        Utilities.setBlock1(player.getTargetBlock(airSet, 200), player);
-                        player.sendMessage("Block 1 gesetzt");
-                    }else if(blockNr == 2){
-                        Utilities.setBlock2(player.getTargetBlock(airSet, 200), player);
-                        player.sendMessage("Block 2 gesetzt");
-                    }
-
-
-                }catch (NumberFormatException e){
-                    Bukkit.broadcastMessage(Utilities.createMessage());
-                    Material[] Materials = Material.values();
-                    for(int i = 0; i < Materials.length; i++){
-                        if(Materials[i].toString().equals(args[0].toUpperCase())){
-                            Material fillWith = Material.getMaterial(args[0].toUpperCase());
-                            if(Utilities.canFill(player)){
-                                Utilities.fillArea(fillWith, world, player);
-                                Utilities.setBlock1(null, player);
-                                Utilities.setBlock2(null, player);
-                                return true;
-                            }
-                            player.sendMessage("Es sind nicht beide Bloecke gesetzt");
-                            return true;
-                        }
-
-                    }
-
-                }
-            }
 
         }
 
