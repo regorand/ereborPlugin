@@ -36,6 +36,7 @@ public class MyPlugin extends JavaPlugin {
         getCommand("flyingspeed").setExecutor(playerCommandExecuter);
         getCommand("walkingspeed").setExecutor(playerCommandExecuter);
         getCommand("inventory").setExecutor(playerCommandExecuter);
+        getCommand("tele").setExecutor(playerCommandExecuter);
 
         Utilities.init();
     }

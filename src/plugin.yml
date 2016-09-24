@@ -19,6 +19,10 @@ commands:
     description: fill Bereich
   calc:
     description: counts all blocks. use true as first parameter if you want to count air blocks
-  wand:
+  wall:
     description: build a wall (insert trump joke here)
     usage: 0 bottom-left. 1 bottom-right. 2 top-right. 3 top-left
+  tele:
+    description: gives player a tele stick
+  clearslope:
+    description: clears a slope

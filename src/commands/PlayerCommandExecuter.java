@@ -9,10 +9,12 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import resources.InventoryBar;
 import resources.Utilities;
 
@@ -75,7 +77,13 @@ public class PlayerCommandExecuter implements CommandExecutor {
                 }
                 Bukkit.broadcastMessage("save or load as first Parameter <mode>");
                 return true;
-
+            case "tele":
+                ItemStack stick = new ItemStack(Material.STICK);
+                ItemMeta im = stick.hasItemMeta() ? stick.getItemMeta() : Bukkit.getItemFactory().getItemMeta(Material.STICK);
+                im.setDisplayName("tele");
+                stick.setItemMeta(im);
+                player.getInventory().setItemInHand(stick);
+                return true;
         }
 
 

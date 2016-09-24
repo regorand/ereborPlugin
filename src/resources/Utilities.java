@@ -70,7 +70,16 @@ public abstract class Utilities {
         wallPoints[corner] = block;
     }
 
-    public static void bauWall(Material material) {
+    public static void setWallBlocksNull(){
+        for(Block b: wallPoints){
+            b = null;
+        }
+    }
+
+    public static void bauSmoothWall(String materialString) {
+        Material material = Utilities.getMaterialFromString(materialString);
+        if(material == null) material = Material.STONE;
+
         ArrayList<Block> leftColumn = getLineBetweenBlocks(wallPoints[0], wallPoints[3]),
                 rightColumn = getLineBetweenBlocks(wallPoints[1], wallPoints[2]);
 
@@ -81,13 +90,50 @@ public abstract class Utilities {
 
         for(int i = 0; i < smallerSize; i++){
             for(Block b: getLineBetweenBlocks(leftColumn.get(i), rightColumn.get(i))){
-                b.setType(Material.DIAMOND_BLOCK);
+                b.setType(material);            }
+        }
+
+        for(int i = smallerSize; i < largerSize; i++){
+            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIsSmaller ? smallerSize : i), rightColumn.get(leftIsSmaller ?  i : smallerSize))){
+                b.setType(material);
+            }
+        }
+    }
+
+    public static void clearSlope(){
+        ArrayList<Block> leftColumn = getLineBetweenBlocks(wallPoints[0], wallPoints[3]),
+                rightColumn = getLineBetweenBlocks(wallPoints[1], wallPoints[2]);
+
+        int maxY = Math.max(
+                Math.max(
+                        Math.max(
+                                wallPoints[0].getLocation().getBlockY(),
+                                wallPoints[1].getLocation().getBlockY()),
+                        wallPoints[2].getLocation().getBlockY()),
+                wallPoints[3].getLocation().getBlockY());
+
+        boolean leftIsSmaller = leftColumn.size() < rightColumn.size();
+        int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
+                smallerSize = Math.min(leftColumn.size(), rightColumn.size()) - 1,
+                leftIndex, rightIndex;
+
+        for(int i = 0; i < smallerSize; i++){
+            for(Block b: getLineBetweenBlocks(leftColumn.get(i), rightColumn.get(i))){
+                b.setType(Material.AIR);
+                while(b.getY() <= maxY){
+                    b = b.getLocation().add(0, 1, 0).getBlock();
+                    b.setType(Material.AIR);
+                }
             }
         }
 
         for(int i = smallerSize; i < largerSize; i++){
             for(Block b: getLineBetweenBlocks(leftColumn.get(leftIsSmaller ? smallerSize : i), rightColumn.get(leftIsSmaller ?  i : smallerSize))){
-                b.setType(Material.DIAMOND_BLOCK);
+                b.setType(Material.AIR);
+                while(b.getY() <= maxY){
+                    b = b.getLocation().add(0, 1, 0).getBlock();
+                    b.setType(Material.AIR);
+                }
             }
         }
     }
@@ -258,6 +304,15 @@ public abstract class Utilities {
             }
         }
         return blocks;
+    }
+
+    public static Material getMaterialFromString(String materialSting){
+        for(Material m: Material.values()){
+            if(m.toString().equals(materialSting.toUpperCase())){
+                return m;
+            }
+        }
+        return null;
     }
 
 
