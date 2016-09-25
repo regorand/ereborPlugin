@@ -51,6 +51,7 @@ public abstract class Utilities {
         airSet.add(Material.AIR);
         airSet.add(Material.WATER);
         airSet.add(Material.STATIONARY_WATER);
+        airSet.add(Material.TORCH);
 
         notRemovable.add(EntityType.ARMOR_STAND);
         notRemovable.add(EntityType.PLAYER);

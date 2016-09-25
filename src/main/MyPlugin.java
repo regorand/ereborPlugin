@@ -24,19 +24,8 @@ public class MyPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldListener(), this);
 
         new WorldCommandExecuter(this);
-
-        PlayerCommandExecuter playerCommandExecuter = new PlayerCommandExecuter();
-        ReactionCommandExecuter reactionCommandExecuter = new ReactionCommandExecuter(this);
-
-        getCommand("wtf").setExecutor(reactionCommandExecuter);
-        getCommand("nice").setExecutor(reactionCommandExecuter);
-        getCommand("?").setExecutor(reactionCommandExecuter);
-
-
-        getCommand("flyingspeed").setExecutor(playerCommandExecuter);
-        getCommand("walkingspeed").setExecutor(playerCommandExecuter);
-        getCommand("inventory").setExecutor(playerCommandExecuter);
-        getCommand("tele").setExecutor(playerCommandExecuter);
+        new PlayerCommandExecuter(this);
+        new ReactionCommandExecuter(this);
 
         Utilities.init();
     }

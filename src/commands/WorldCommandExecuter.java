@@ -18,13 +18,11 @@ public class WorldCommandExecuter implements CommandExecutor {
 
     HashMap<String, CommandExecution> COMMANDS = new HashMap<>();
 
-
     public WorldCommandExecuter(JavaPlugin plugin){
         loadCommands();
         for(String key: COMMANDS.keySet()){
             plugin.getCommand(key).setExecutor(this);
         }
-
     }
 
     @Override

@@ -6,56 +6,58 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
 import java.util.Random;
 
-/**
- * Created by Jan-Luca on 21.09.2016.
- */
 public class ReactionCommandExecuter implements CommandExecutor{
 
     Plugin plugin;
 
-    public ReactionCommandExecuter(Plugin plugin){
+    HashMap<String, CommandExecution> COMMANDS = new HashMap<>();
+
+    public ReactionCommandExecuter(JavaPlugin plugin){
+        loadCommands();
         this.plugin = plugin;
+        for(String key: COMMANDS.keySet()){
+            plugin.getCommand(key).setExecutor(this);
+        }
+    }
+
+    private void loadCommands(){
+        COMMANDS.put("wtf", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                wtfReaction(args);
+            }
+        });
+
+        COMMANDS.put("nice", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                niceReaction(args);
+            }
+        });
+
+        COMMANDS.put("?", new CommandExecution() {
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                questionReaction(args, (Player) sender);
+            }
+        });
     }
 
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args) {
-        String name;
-        if(!(commandSender instanceof Player)){
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(!(sender instanceof Player)){
+            sender.sendMessage("must be a Player to use this command");
             return true;
         }
 
-
-        Player player = (Player) commandSender;
-
-        switch (label.toLowerCase()){
-            case "wtf":
-                name = args.length == 0 ? "Thomas" : args[0];
-                Random r = new Random();
-                int ra = r.nextInt();
-                if(ra % 20 == 0){
-                    Bukkit.broadcastMessage(name + ", don't get Bushy");
-                }else if (ra % 10 == 0){
-                    Bukkit.broadcastMessage(name + ", don't get pushy");
-                }
-                Bukkit.broadcastMessage("wtf " + name);
-                return true;
-            case "nice":
-                name = args.length == 0 ? "" : args[0];
-                Bukkit.broadcastMessage("nice one " + name);
-                return true;
-            case "?":
-                name = args.length == 0 ? "" : args[0];
-                Player player2 = findPlayerByName(name);
-                if(player2 != null){
-                    player.sendMessage("@" + name + " ?");
-                    player2.teleport(player);
-                }else {
-                    Bukkit.broadcastMessage("@" + name + " ?");
-                }
-                return true;
+        if(COMMANDS.containsKey(label)){
+            COMMANDS.get(label).execute(sender, label, args);
+            return true;
         }
         return false;
     }
@@ -67,5 +69,33 @@ public class ReactionCommandExecuter implements CommandExecutor{
             }
         }
         return null;
+    }
+
+    private void wtfReaction(String[] args){
+        String name = args.length == 0 ? "" : args[0];
+        Random r = new Random();
+        int ra = r.nextInt();
+        if(ra % 20 == 0){
+            Bukkit.broadcastMessage(name + ", don't get Bushy");
+        }else if (ra % 10 == 0){
+            Bukkit.broadcastMessage(name + ", don't get pushy");
+        }
+        Bukkit.broadcastMessage("wtf " + name);
+    }
+
+    private void niceReaction(String[] args){
+        String name = args.length == 0 ? "" : args[0];
+        Bukkit.broadcastMessage("nice one " + name);
+    }
+
+    private void questionReaction(String[] args, Player player){
+        String name = args.length == 0 ? "" : args[0];
+        Player player2 = findPlayerByName(name);
+        if(player2 != null){
+            player.sendMessage("@" + name + " ?");
+            player2.teleport(player);
+        }else {
+            Bukkit.broadcastMessage("@" + name + " ?");
+        }
     }
 }
