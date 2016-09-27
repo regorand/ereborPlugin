@@ -19,6 +19,8 @@ public abstract class Utilities {
 
     public static HashMap<String, Block> bauBlocks = new HashMap<>();
 
+    public static HashMap<String, Block> copyBlocks = new HashMap<>();
+
     public static void setCalcBlock1(Block calcBlock1) {
         Utilities.calcBlock1 = calcBlock1;
     }
@@ -75,6 +77,11 @@ public abstract class Utilities {
         for(Block b: wallPoints){
             b = null;
         }
+    }
+
+    public static void setBauBlocks(int index, Block block, Player player){
+        String key = player.getDisplayName() + "_" + index;
+        bauBlocks.put(key, block);
     }
 
     public static void bauSmoothWall(String materialString) {
@@ -223,27 +230,18 @@ public abstract class Utilities {
                 bauBlocks.get(player.getDisplayName() + "_2") != null;
     }
 
-    public static Block getBlock1(Player player) {
-        return bauBlocks.get(player.getDisplayName() + "_1");
+    public static Block getBauBlock(int index, Player player) {
+        return bauBlocks.get(player.getDisplayName() + "_" + index);
     }
 
-    public static Block getBlock2(Player player) {
-        return bauBlocks.get(player.getDisplayName() + "_2");
+    public static Block getCopyBlock(int index, Player player) {
+        return copyBlocks.get(player.getDisplayName() + "_" + index);
     }
 
-    public static void setBlock1(Block block, Player player) {
-        String key = player.getDisplayName() + "_1";
-        bauBlocks.put(key, block);
-    }
-
-    public static void setBlock2(Block block, Player player) {
-        String key = player.getDisplayName() + "_2";
-        bauBlocks.put(key, block);
-    }
 
     public static void fillArea(Material material, World world, Player player) {
-        Location loc1 = bauBlocks.get(player.getDisplayName() + "_1").getLocation();
-        Location loc2 = bauBlocks.get(player.getDisplayName() + "_2").getLocation();;
+        Location loc1 = getBauBlock(1, player).getLocation();
+        Location loc2 = getBauBlock(2, player).getLocation();
 
         double smallerX = Math.min(loc1.getX(), loc2.getX());
         double smallerY = Math.min(loc1.getY(), loc2.getY());

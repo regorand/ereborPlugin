@@ -26,3 +26,4 @@ commands:
     description: gives player a tele stick
   clearslope:
     description: clears a slope
+  kill:

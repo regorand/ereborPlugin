@@ -18,28 +18,30 @@ public class WorldCommandExecuter implements CommandExecutor {
 
     HashMap<String, CommandExecution> COMMANDS = new HashMap<>();
 
-    public WorldCommandExecuter(JavaPlugin plugin){
+    public WorldCommandExecuter(JavaPlugin plugin) {
         loadCommands();
-        for(String key: COMMANDS.keySet()){
+        for (String key : COMMANDS.keySet()) {
             plugin.getCommand(key).setExecutor(this);
         }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(!isPlayer(sender)){
+
+
+        if (!isPlayer(sender)) {
             sender.sendMessage("nur als Spieler anwendbar");
             return true;
         }
 
-        if(COMMANDS.containsKey(label)){
+        if (COMMANDS.containsKey(label)) {
             COMMANDS.get(label).execute(sender, label, args);
             return true;
         }
         return false;
     }
 
-    private void loadCommands(){
+    private void loadCommands() {
 
         COMMANDS.put("killall", new CommandExecution() {
             @Override
@@ -81,15 +83,14 @@ public class WorldCommandExecuter implements CommandExecutor {
                 }
                 Player player = (Player) sender;
                 if (args[0].equals("set")) {
-                    if(args[1] != null){
+                    if (args[1] != null) {
                         setWallBlocks(args[1], player);
                     }
                 } else if (args[0].equals("bau")) {
                     String type = args.length > 1 ? args[1] : "";
 
 
-
-                    if(type.equals("smooth")){
+                    if (type.equals("smooth")) {
                         String materialString = args.length > 2 ? args[2] : "";
                         Utilities.bauSmoothWall(materialString);
                     } else {
@@ -105,71 +106,62 @@ public class WorldCommandExecuter implements CommandExecutor {
         });
 
         COMMANDS.put("clearslope", new CommandExecution() {
-                    @Override
-                    public void execute(CommandSender sender, String label, String[] args) {
-                        if (args.length == 0) {
-                            return;
-                        }
-                        Player player = (Player) sender;
-                        if (args[0].equals("set")) {
-                            if(args[1] != null){
-                                setWallBlocks(args[1], player);
-                            }
-                        } else if(args[0].equals("clear")){
-                            Utilities.clearSlope();
-                        }
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                if (args.length == 0) {
+                    return;
+                }
+                Player player = (Player) sender;
+                if (args[0].equals("set")) {
+                    if (args[1] != null) {
+                        setWallBlocks(args[1], player);
                     }
-                });
+                } else if (args[0].equals("clear")) {
+                    Utilities.clearSlope();
+                }
+            }
+        });
 
         COMMANDS.put("bau", new CommandExecution() {
-                    @Override
-                    public void execute(CommandSender sender, String label, String[] args) {
-                        if (args.length == 0) {
-                            return;
-                        }
-                        Player player = (Player) sender;
-                        try {
-                            int blockNr = Integer.valueOf(args[0]);
-                            if (blockNr == 1) {
-                                Utilities.setBlock1(player.getTargetBlock(Utilities.airSet, 200), player);
-                                player.sendMessage("Block 1 gesetzt");
-                            } else if (blockNr == 2) {
-                                Utilities.setBlock2(player.getTargetBlock(Utilities.airSet, 200), player);
-                                player.sendMessage("Block 2 gesetzt");
+            @Override
+            public void execute(CommandSender sender, String label, String[] args) {
+                if (args.length == 0) {
+                    return;
+                }
+                Player player = (Player) sender;
+                try {
+                    setBauBlocks(args[0], player, "bau");
+                } catch (NumberFormatException e) {
+                    Bukkit.broadcastMessage(Utilities.createMessage());
+                    Material[] Materials = Material.values();
+                    for (int i = 0; i < Materials.length; i++) {
+                        if (Materials[i].toString().equals(args[0].toUpperCase())) {
+                            Material fillWith = Material.getMaterial(args[0].toUpperCase());
+                            if (Utilities.canFill(player)) {
+                                Utilities.fillArea(fillWith, player.getWorld(), player);
+                                Utilities.setBauBlocks(1, null, player);
+                                Utilities.setBauBlocks(2, null, player);
+                                return;
                             }
-
-
-                        } catch (NumberFormatException e) {
-                            Bukkit.broadcastMessage(Utilities.createMessage());
-                            Material[] Materials = Material.values();
-                            for (int i = 0; i < Materials.length; i++) {
-                                if (Materials[i].toString().equals(args[0].toUpperCase())) {
-                                    Material fillWith = Material.getMaterial(args[0].toUpperCase());
-                                    if (Utilities.canFill(player)) {
-                                        Utilities.fillArea(fillWith, player.getWorld(), player);
-                                        Utilities.setBlock1(null, player);
-                                        Utilities.setBlock2(null, player);
-                                        return;
-                                    }
-                                    player.sendMessage("Es sind nicht beide Bloecke gesetzt");
-                                }
-
-                            }
-
+                            player.sendMessage("Es sind nicht beide Bloecke gesetzt");
                         }
+
                     }
-                });
+
+                }
+            }
+        });
     }
 
-    private boolean isPlayer(CommandSender sender){
+    private boolean isPlayer(CommandSender sender) {
         return sender instanceof Player;
     }
 
-    private void killall(World world){
+    private void killall(World world) {
         int counter = 0;
-        for(Entity e: world.getEntities()){
+        for (Entity e : world.getEntities()) {
 
-            if(!Utilities.notRemovable.contains(e.getType())){
+            if (!Utilities.notRemovable.contains(e.getType())) {
                 counter++;
                 EntityType eType = e.getType();
                 Bukkit.broadcastMessage("rekt get " + eType.toString());
@@ -183,24 +175,23 @@ public class WorldCommandExecuter implements CommandExecutor {
     }
 
 
-
-    private void calculateBlocks(World world, boolean countAir){
-            Bukkit.broadcastMessage(Utilities.createMessage());
-            try {
-                Bukkit.broadcastMessage("Blöcke im bereich: " + Utilities.countBlocks(world, countAir));
-            } catch (RuntimeException e2) {
-                Bukkit.broadcastMessage("error mate, mach beide blöcke undso diesdas");
-            }
-            Utilities.setCalcBlock1(null);
-            Utilities.setCalcBlock2(null);
+    private void calculateBlocks(World world, boolean countAir) {
+        Bukkit.broadcastMessage(Utilities.createMessage());
+        try {
+            Bukkit.broadcastMessage("Blöcke im bereich: " + Utilities.countBlocks(world, countAir));
+        } catch (RuntimeException e2) {
+            Bukkit.broadcastMessage("error mate, mach beide blöcke undso diesdas");
+        }
+        Utilities.setCalcBlock1(null);
+        Utilities.setCalcBlock2(null);
     }
 
-    private void buildRoughWall(String direction, String materialString){
+    private void buildRoughWall(String direction, String materialString) {
         Material material = Utilities.getMaterialFromString(materialString);
-        if(material == null) material = Material.STONE;
+        if (material == null) material = Material.STONE;
     }
 
-    private void setWallBlocks(String blockIndex, Player player){
+    private void setWallBlocks(String blockIndex, Player player) {
         try {
             int index = Integer.valueOf(blockIndex);
             if (index < 0 || index > 3) {
@@ -213,5 +204,15 @@ public class WorldCommandExecuter implements CommandExecutor {
             player.sendMessage("bitte eine Zahl als zweites argument bei set eingeben");
             return;
         }
+    }
+
+    private void setBauBlocks(String arg, Player player, String mode) {
+        int blockNr = Integer.valueOf(arg);
+
+        if (mode.equals("bau")) {
+            Utilities.setBauBlocks(blockNr, player.getTargetBlock(Utilities.airSet, 200), player);
+        }
+        player.sendMessage("Block " + blockNr + " gesetzt");
+
     }
 }

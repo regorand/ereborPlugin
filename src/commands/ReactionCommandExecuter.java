@@ -23,6 +23,7 @@ public class ReactionCommandExecuter implements CommandExecutor{
         for(String key: COMMANDS.keySet()){
             plugin.getCommand(key).setExecutor(this);
         }
+        plugin.getCommand("kill").setExecutor(this);
     }
 
     private void loadCommands(){
@@ -50,6 +51,22 @@ public class ReactionCommandExecuter implements CommandExecutor{
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+
+        if(label.equalsIgnoreCase("kill") && args.length != 0){
+            Player player = findPlayerByName(args[0]);
+            if(args[0].equalsIgnoreCase("thomas")){
+                player = findPlayerByName("jarkux");
+                wtfReaction(new String[]{""});
+                Bukkit.broadcastMessage("scrub got rekt");
+            }
+            if(player != null){
+                player.setHealth(0.0D);
+            }
+        }
+
+
+
         if(!(sender instanceof Player)){
             sender.sendMessage("must be a Player to use this command");
             return true;
