@@ -8,18 +8,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BlockIterator;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 
 public abstract class Utilities {
 
     public static HashMap<String, Block> bauBlocks = new HashMap<>();
-
-    public static HashMap<String, Block> copyBlocks = new HashMap<>();
 
     public static void setCalcBlock1(Block calcBlock1) {
         Utilities.calcBlock1 = calcBlock1;
@@ -93,18 +88,62 @@ public abstract class Utilities {
 
         boolean leftIsSmaller = leftColumn.size() < rightColumn.size();
         int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
-            smallerSize = Math.min(leftColumn.size(), rightColumn.size()) - 1,
-                leftIndex, rightIndex;
+            smallerSize = Math.min(leftColumn.size(), rightColumn.size()) - 1;
 
         for(int i = 0; i < smallerSize; i++){
             for(Block b: getLineBetweenBlocks(leftColumn.get(i), rightColumn.get(i))){
-                b.setType(material);            }
+                b.setType(material);
+            }
         }
 
         for(int i = smallerSize; i < largerSize; i++){
             for(Block b: getLineBetweenBlocks(leftColumn.get(leftIsSmaller ? smallerSize : i), rightColumn.get(leftIsSmaller ?  i : smallerSize))){
                 b.setType(material);
             }
+        }
+    }
+
+    public static void bauRoughWall(String materialString, String direction){
+        Material material = Utilities.getMaterialFromString(materialString);
+        if(material == null) material = Material.STONE;
+
+        ArrayList<Block> leftColumn = getLineBetweenBlocks(wallPoints[0], wallPoints[3]),
+                rightColumn = getLineBetweenBlocks(wallPoints[1], wallPoints[2]);
+
+        boolean leftIsSmaller = leftColumn.size() < rightColumn.size();
+        int largerSize = Math.max(leftColumn.size(), rightColumn.size()),
+                smallerSize = Math.min(leftColumn.size(), rightColumn.size()) - 1;
+
+        int prevIndex = 0;
+        int index;
+        Random r = new Random();
+
+        for(int i = 0; i < smallerSize; i++){
+            for(Block b: getLineBetweenBlocks(leftColumn.get(i), rightColumn.get(i))){
+                index = r.nextInt(7) - 3;
+
+                b.setType(material);
+            }
+        }
+
+        for(int i = smallerSize; i < largerSize; i++){
+            for(Block b: getLineBetweenBlocks(leftColumn.get(leftIsSmaller ? smallerSize : i), rightColumn.get(leftIsSmaller ?  i : smallerSize))){
+
+
+                b.setType(material);
+            }
+        }
+    }
+
+    public static Block addByDirection(Block block, String direction, int amount){
+        switch (direction){
+            case "up":
+                return block.getLocation().add(0, amount, 0).getBlock();
+            case "down":
+                return block.getLocation().add(0, -amount, 0).getBlock();
+
+            default:
+                return block;
         }
     }
 
@@ -232,10 +271,6 @@ public abstract class Utilities {
 
     public static Block getBauBlock(int index, Player player) {
         return bauBlocks.get(player.getDisplayName() + "_" + index);
-    }
-
-    public static Block getCopyBlock(int index, Player player) {
-        return copyBlocks.get(player.getDisplayName() + "_" + index);
     }
 
 

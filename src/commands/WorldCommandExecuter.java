@@ -97,7 +97,7 @@ public class WorldCommandExecuter implements CommandExecutor {
                         String direction = args.length > 2 ? args[2] : "";
                         String materialString = args.length > 3 ? args[3] : "";
 
-                        buildRoughWall(direction, materialString);
+                        Utilities.bauRoughWall(materialString, direction);
 
                     }
                     Utilities.setWallBlocksNull();
